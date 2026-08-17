@@ -1,0 +1,25 @@
+# Variables de entorno y credenciales
+.env
+.env.local
+.env.*.local
+
+# Configuracion de IDEs
+.idea/
+.vscode/
+*.iml
+*.project
+*.classpath
+*.settings/
+
+# Salidas de compilacion, logs y almacenamiento temporal de adaptadores
+out/
+target/
+vendor/
+storage/cache/*.cache
+storage/queue/*.jsonl
+storage/data/*.json
+*.log
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
