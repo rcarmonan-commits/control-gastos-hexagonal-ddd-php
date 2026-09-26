@@ -12,9 +12,10 @@
 *.settings/
 
 # Salidas de compilacion, logs y almacenamiento temporal de adaptadores
-out/
-target/
-vendor/
+/out/
+/target/
+/vendor/
+!/Application/Ports/Out/
 storage/cache/*.cache
 storage/queue/*.jsonl
 storage/data/*.json
