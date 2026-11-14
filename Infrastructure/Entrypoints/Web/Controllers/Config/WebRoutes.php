@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../../../Common/DependencyInjection.php';
+require_once __DIR__ . '/../../../../../Common/DependencyInjection.php';
 require_once __DIR__ . '/../UserController.php';
 require_once __DIR__ . '/../GastoController.php';
 require_once __DIR__ . '/../AuthController.php';
