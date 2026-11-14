@@ -1,0 +1,171 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "API Hexagonal DDD + CQRS: Usuarios y Gastos (#6)",
+    "version": "1.0.0",
+    "description": "API RESTful y especificacion OpenAPI para la gestion CRUDL de Usuarios y Gastos (Ejercicio #6) bajo Arquitectura Hexagonal, Domain-Driven Design y CQRS.",
+    "contact": {
+      "name": "Rosary Eilyn Carmona Navarro",
+      "email": "rcarmonan@unicartagena.edu.co"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Servidor Local / Docker"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["Sistema"],
+        "summary": "Estado de salud del servicio y driver de persistencia activo",
+        "responses": {
+          "200": { "description": "Servicio operativo" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Autenticacion"],
+        "summary": "Autenticar usuario mediante correo y clave (CQRS Command)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "example": "admin@crud.com" },
+                  "password": { "type": "string", "example": "Developer123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Autenticacion exitosa" },
+          "401": { "description": "Credenciales invalidas" }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": ["Usuarios"],
+        "summary": "Listar o filtrar usuarios (CQRS Query)",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Listado de usuarios" } }
+      },
+      "post": {
+        "tags": ["Usuarios"],
+        "summary": "Crear un nuevo usuario (CQRS Command)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password"],
+                "properties": {
+                  "id": { "type": "string", "example": "USR-010" },
+                  "name": { "type": "string", "example": "Carlos Perez" },
+                  "email": { "type": "string", "example": "cperez@unicartagena.edu.co" },
+                  "password": { "type": "string", "example": "ClaveSegura2026" },
+                  "role": { "type": "string", "enum": ["ADMIN", "MEMBER", "REVIEWER"], "example": "MEMBER" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Usuario creado" },
+          "409": { "description": "Correo o ID duplicado" },
+          "422": { "description": "Error de validacion de dominio" }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": ["Usuarios"],
+        "summary": "Obtener usuario por ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Detalle de usuario" }, "404": { "description": "No encontrado" } }
+      },
+      "put": {
+        "tags": ["Usuarios"],
+        "summary": "Actualizar usuario existente",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Usuario actualizado" }, "404": { "description": "No encontrado" } }
+      },
+      "delete": {
+        "tags": ["Usuarios"],
+        "summary": "Eliminar usuario por ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Usuario eliminado" }, "404": { "description": "No encontrado" } }
+      }
+    },
+    "/api/gastos": {
+      "get": {
+        "tags": ["Gastos (#6)"],
+        "summary": "Listar o filtrar gastos (CQRS Query)",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string" } },
+          { "name": "usuario", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Listado de gastos" } }
+      },
+      "post": {
+        "tags": ["Gastos (#6)"],
+        "summary": "Registrar un nuevo gasto validando invariante de IVA en Dominio",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["fecha", "valorTotalSinIVA", "ivaTotal", "nombreUsuario", "lugar", "descripcion"],
+                "properties": {
+                  "id": { "type": "string", "example": "GAS-010" },
+                  "fecha": { "type": "string", "format": "date", "example": "2026-10-15" },
+                  "valorTotalSinIVA": { "type": "number", "example": 200000.00 },
+                  "ivaTotal": { "type": "number", "example": 38000.00 },
+                  "valorTotalConIVA": { "type": "number", "example": 238000.00 },
+                  "nombreUsuario": { "type": "string", "example": "Rosary Carmona" },
+                  "lugar": { "type": "string", "example": "Libreria Nacional Cartagena" },
+                  "descripcion": { "type": "string", "example": "Adquisicion de bibliografia de Arquitectura de Software" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Gasto registrado" },
+          "422": { "description": "Invariante contable o Value Object invalido" }
+        }
+      }
+    },
+    "/api/gastos/{id}": {
+      "get": {
+        "tags": ["Gastos (#6)"],
+        "summary": "Consultar un gasto por su identificador",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Detalle del gasto" }, "404": { "description": "No encontrado" } }
+      },
+      "put": {
+        "tags": ["Gastos (#6)"],
+        "summary": "Actualizar un gasto existente",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Gasto actualizado" }, "404": { "description": "No encontrado" } }
+      },
+      "delete": {
+        "tags": ["Gastos (#6)"],
+        "summary": "Eliminar un gasto por su identificador",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Gasto eliminado" }, "404": { "description": "No encontrado" } }
+      }
+    }
+  }
+}
