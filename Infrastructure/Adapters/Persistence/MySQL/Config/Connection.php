@@ -20,9 +20,9 @@ final class Connection
 
         $host = EnvLoader::get('DB_HOST', '127.0.0.1') ?? '127.0.0.1';
         $port = EnvLoader::get('DB_PORT', '3306') ?? '3306';
-        $database = EnvLoader::get('DB_DATABASE', 'crud_usuarios') ?? 'crud_usuarios';
-        $username = EnvLoader::get('DB_USERNAME', 'Estudiante') ?? 'Estudiante';
-        $password = EnvLoader::get('DB_PASSWORD', 'Developer') ?? 'Developer';
+        $database = EnvLoader::get('DB_DATABASE') ?? EnvLoader::get('DB_NAME', 'crud_usuarios') ?? 'crud_usuarios';
+        $username = EnvLoader::get('DB_USERNAME') ?? EnvLoader::get('DB_USER', 'Estudiante') ?? 'Estudiante';
+        $password = EnvLoader::get('DB_PASSWORD') ?? EnvLoader::get('DB_PASS', 'Developer') ?? 'Developer';
         $charset = EnvLoader::get('DB_CHARSET', 'utf8mb4') ?? 'utf8mb4';
         $sslCa = EnvLoader::get('DB_SSL_CA', '');
 

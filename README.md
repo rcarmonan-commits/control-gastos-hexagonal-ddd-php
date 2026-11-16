@@ -101,6 +101,7 @@ flowchart LR
 │       ├── Dto/
 │       │   ├── Commands/               # DTOs de escritura CQRS
 │       │   ├── Queries/                # DTOs de lectura CQRS
+│       │   ├── Requests/               # Objetos Request DTO de aplicación
 │       │   └── Responses/              # Respuestas desacopladas de aplicación
 │       └── *Service.php                # 11 Casos de Uso implementados
 ├── Common/
@@ -163,7 +164,7 @@ docker compose up -d --build
 
 ### Opción C: Base de Datos en la Nube y Despliegue PaaS (Render / Railway / Zeabur)
 1. Ejecutar `Infrastructure/Adapters/Persistence/MySQL/Database/mysql/cloud_migration.sql` en la instancia MySQL gestionada (Aiven, Clever Cloud, Railway MySQL o TiDB Cloud).
-2. Conectar el repositorio GitHub en **Render**, **Railway** o **Zeabur** seleccionando el `Dockerfile` de la raíz y definiendo las variables de entorno `PERSISTENCE_DRIVER=mysql`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASS`.
+2. Conectar el repositorio GitHub en **Render**, **Railway** o **Zeabur** seleccionando el `Dockerfile` de la raíz y definiendo las variables de entorno `PERSISTENCE_DRIVER=mysql`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` y `DB_PASSWORD` (o el manifiesto automático `render.yaml`).
 
 ---
 

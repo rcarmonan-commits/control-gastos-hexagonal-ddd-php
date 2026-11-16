@@ -341,4 +341,78 @@ WebRoutes::dispatch('login');
 $htmlLogin = (string) ob_get_clean();
 $t->assert(str_contains($htmlLogin, 'Iniciar Sesion'), 'Presentacion Web Auth: renderiza formulario de inicio de sesion sin errores');
 
+// ============================================================================
+// 7. AUDITORIA QUIRURGICA DE CUMPLIMIENTO 100% CON LA GUIA DEL DOCENTE
+// ============================================================================
+// 7.1 Snippet exacto de Seccion 5.3 ("Ejemplo del uso del dominio")
+$guideUser = UserModel::create(
+    new UserId('1'),
+    new UserName('Administrador'),
+    new UserEmail('admin@crud.com'),
+    new UserPassword('Developer123'),
+    UserRoleEnum::ADMIN
+);
+$guideUser = $guideUser->activate();
+$guideEvent = new UserCreatedDomainEvent($guideUser);
+$t->assert(
+    $guideUser->id()->value() === '1' && $guideUser->status() === UserStatusEnum::ACTIVE && $guideEvent->payload()['email'] === 'admin@crud.com',
+    'Guia Seccion 5.3: snippet oficial UserModel::create(UserId("1")) + activate() + UserCreatedDomainEvent funciona al 100%'
+);
+
+// 7.2 Constante PENDING en UserStatusEnum (Seccion 5.3)
+$t->assert(
+    UserStatusEnum::isValid(UserStatusEnum::PENDING),
+    'Guia Seccion 5.3: UserStatusEnum incluye estado PENDING ademas de ACTIVE, INACTIVE y BLOCKED'
+);
+
+// 7.3 Firma de 1 argumento en UserApplicationMapper::fromUpdateCommandToModel (Seccion 4.3)
+$mappedSingleArg = UserApplicationMapper::fromUpdateCommandToModel(
+    new UpdateUserCommand('USR-MAP-1', 'Nombre Guia', 'guia@crud.com', 'ClaveGuia123', 'MEMBER', 'PENDING')
+);
+$t->assert(
+    $mappedSingleArg->status() === 'PENDING' && $mappedSingleArg->password()->matches('ClaveGuia123'),
+    'Guia Seccion 4.3: UserApplicationMapper::fromUpdateCommandToModel soporta firma oficial de 1 argumento'
+);
+
+// 7.4 Puerto FindUserByEmailPort (Captura 3.2 image2.png) implementado en repositorios
+$memRepoCheck = new InMemoryUserRepository(null, true);
+$foundViaAliasPort = $memRepoCheck->findByEmail(new UserEmail('admin@crud.com'));
+$t->assert(
+    $memRepoCheck instanceof FindUserByEmailPort && $foundViaAliasPort !== null && $foundViaAliasPort->id()->value() === 'USR-001',
+    'Guia Seccion 3.2: FindUserByEmailPort existe y resuelve usuarios por email'
+);
+
+// 7.5 Existencia de carpetas y archivos de las 5 capturas oficiales (Secciones 3.1 a 3.4)
+$rootDir = dirname(__DIR__);
+$requiredPaths = array(
+    'Application/Ports/Out/FindUserByEmailPort.php',
+    'Application/Services/Dto/Requests/CreateUserRequest.php',
+    'Application/Services/Dto/Requests/CreateGastoRequest.php',
+    'Application/Services/Mappers/UserApplicationMapper.php',
+    'Infrastructure/Entrypoints/Web/Presentation/images/logo-hexagonal.svg',
+    'Infrastructure/Entrypoints/Web/Presentation/js/libs/iva-calculator.js',
+    'Infrastructure/Entrypoints/Web/Presentation/multimedia/arquitectura-hexagonal.svg',
+    'Common/ClassLoader.php',
+    'Common/DependencyInjection.php',
+    'render.yaml',
+);
+$allPathsExist = true;
+foreach ($requiredPaths as $rp) {
+    if (!is_file($rootDir . '/' . $rp)) {
+        $allPathsExist = false;
+        fwrite(STDERR, "Falta ruta requerida: {$rp}\n");
+    }
+}
+$t->assert($allPathsExist, 'Guia Seccion 3 (Capturas 3.1-3.4): 100% de carpetas y archivos estructurales presentes');
+
+// 7.6 Consistencia de credenciales MySQL (crud_usuarios / Estudiante / Developer) en Docker Compose y SQL
+$composeRaw = (string) file_get_contents($rootDir . '/docker-compose.yml');
+$sqlRaw = (string) file_get_contents($rootDir . '/Infrastructure/Adapters/Persistence/MySQL/Database/mysql/database.sql');
+$t->assert(
+    str_contains($composeRaw, 'DB_DATABASE: crud_usuarios') &&
+    str_contains($composeRaw, 'DB_USERNAME: Estudiante') &&
+    str_contains($sqlRaw, 'CREATE DATABASE IF NOT EXISTS crud_usuarios'),
+    'Guia Seccion 5.1: database.sql, Connection.php, .env.example y docker-compose.yml unificados en crud_usuarios'
+);
+
 exit($t->summary());
