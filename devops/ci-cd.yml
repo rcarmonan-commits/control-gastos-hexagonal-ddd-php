@@ -1,0 +1,47 @@
+name: CI/CD — Hexagonal DDD + CQRS PHP 8.3 (Usuarios & Gastos #6)
+
+on:
+  push:
+    branches: [ "main", "feature/**", "chore/**" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  quality-and-tests:
+    name: Sintaxis PHP 8.3, Contratos OpenAPI/Postman y Suite DDD/CQRS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar PHP 8.3 con extensiones requeridas
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo, pdo_mysql, bcmath, mbstring, json, filter
+          coverage: none
+
+      - name: Verificar sintaxis (php -l) en todas las capas de la arquitectura
+        run: |
+          find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
+
+      - name: Validar esquemas JSON (OpenAPI 3.0 y Coleccion Postman)
+        run: |
+          php -r '
+            $files = [
+              "Infrastructure/Entrypoints/Rest/Swagger/openapi.json",
+              "postman/CRUD_Usuarios_Gastos_Hexagonal.postman_collection.json"
+            ];
+            foreach ($files as $file) {
+              $decoded = json_decode(file_get_contents($file), true);
+              if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+                fwrite(STDERR, "JSON invalido en: {$file}\n");
+                exit(1);
+              }
+              echo "OK JSON: {$file}\n";
+            }
+          '
+
+      - name: Ejecutar suite automatizada de pruebas de Dominio, CQRS y API REST
+        run: php tests/run_tests.php

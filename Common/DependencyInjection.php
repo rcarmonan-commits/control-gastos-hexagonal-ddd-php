@@ -22,8 +22,14 @@ final class DependencyInjection
     {
         EnvLoader::load();
 
-        $this->cacheAdapter = new FileCacheAdapter();
-        $this->eventPublisher = new FileQueueEventPublisherAdapter();
+        if ($pureInMemoryForTests) {
+            $testTmp = sys_get_temp_dir() . '/hexagonal_gasto_test_' . bin2hex(random_bytes(4));
+            $this->cacheAdapter = new FileCacheAdapter($testTmp . '/cache');
+            $this->eventPublisher = new FileQueueEventPublisherAdapter($testTmp . '/events.jsonl');
+        } else {
+            $this->cacheAdapter = new FileCacheAdapter();
+            $this->eventPublisher = new FileQueueEventPublisherAdapter();
+        }
         $this->taxRestClient = new TaxReferenceRestClient();
 
         $configuredDriver = strtolower(trim($forceDriver ?? (EnvLoader::get('PERSISTENCE_DRIVER', 'mysql') ?? 'mysql')));
