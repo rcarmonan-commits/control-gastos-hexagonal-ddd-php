@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../../../../Application/Ports/Out/SaveUserPort.php';
 require_once __DIR__ . '/../../../../../Application/Ports/Out/GetUserByIdPort.php';
 require_once __DIR__ . '/../../../../../Application/Ports/Out/GetUserByEmailPort.php';
+require_once __DIR__ . '/../../../../../Application/Ports/Out/FindUserByEmailPort.php';
 require_once __DIR__ . '/../../../../../Application/Ports/Out/GetAllUsersPort.php';
 require_once __DIR__ . '/../../../../../Application/Ports/Out/UpdateUserPort.php';
 require_once __DIR__ . '/../../../../../Application/Ports/Out/DeleteUserPort.php';
@@ -16,6 +17,7 @@ final class UserRepositoryMySQL implements
     SaveUserPort,
     GetUserByIdPort,
     GetUserByEmailPort,
+    FindUserByEmailPort,
     GetAllUsersPort,
     UpdateUserPort,
     DeleteUserPort
@@ -122,6 +124,11 @@ final class UserRepositoryMySQL implements
         ));
 
         return UserPersistenceMapper::toDomainModel($entity);
+    }
+
+    public function findByEmail(UserEmail $email): ?UserModel
+    {
+        return $this->getByEmail($email);
     }
 
     public function delete(UserId $userId): void

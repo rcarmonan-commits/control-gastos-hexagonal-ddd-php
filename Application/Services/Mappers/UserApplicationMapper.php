@@ -32,11 +32,15 @@ final class UserApplicationMapper
         );
     }
 
-    public static function fromUpdateCommandToModel(UpdateUserCommand $command, UserPassword $currentPassword): UserModel
+    public static function fromUpdateCommandToModel(UpdateUserCommand $command, ?UserPassword $currentPassword = null): UserModel
     {
-        $resolvedPassword = $command->getPassword() !== null
-            ? UserPassword::fromPlainText($command->getPassword())
-            : $currentPassword;
+        if ($command->getPassword() !== null && $command->getPassword() !== '') {
+            $resolvedPassword = UserPassword::fromPlainText($command->getPassword());
+        } elseif ($currentPassword !== null) {
+            $resolvedPassword = $currentPassword;
+        } else {
+            throw InvalidUserPasswordException::becauseValueIsEmpty();
+        }
 
         return new UserModel(
             new UserId($command->getId()),
